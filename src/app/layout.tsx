@@ -16,6 +16,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://vigieweb.fr";
+
 export const metadata: Metadata = {
   title: {
     default: "Vigie Web - La sentinelle de vos sites internet",
@@ -33,6 +35,26 @@ export const metadata: Metadata = {
     "freelance",
     "agence web",
   ],
+  metadataBase: new URL(BASE_URL),
+  openGraph: {
+    title: "Vigie Web - La sentinelle de vos sites internet",
+    description:
+      "Surveillez la disponibilite, le SSL et les domaines de vos sites web. Alertes instantanees pour freelances et agences.",
+    url: BASE_URL,
+    siteName: "Vigie Web",
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vigie Web - Monitoring de sites web",
+    description:
+      "Surveillez vos sites web en temps reel. Alertes uptime, SSL, domaine.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
