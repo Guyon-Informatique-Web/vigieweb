@@ -22,7 +22,8 @@ export const urlSchema = z
         hostname.startsWith("192.168.") ||
         hostname.startsWith("10.") ||
         hostname.startsWith("172.16.") ||
-        hostname === "::1"
+        hostname === "::1" ||
+        hostname === "[::1]"
       ) {
         return false;
       }
