@@ -373,7 +373,7 @@ export async function GET(request: NextRequest) {
             },
           });
 
-          let domainUpdate: { domainExpiresAt?: Date } = {};
+          let domainUpdate: { domainExpiresAt?: Date; domainRegistrar?: string } = {};
 
           if (!lastDomainCheck) {
             const domainResult = await checkDomain(site.url);
@@ -387,7 +387,10 @@ export async function GET(request: NextRequest) {
             });
 
             if (domainResult.expiresAt) {
-              domainUpdate = { domainExpiresAt: domainResult.expiresAt };
+              domainUpdate.domainExpiresAt = domainResult.expiresAt;
+            }
+            if (domainResult.registrar) {
+              domainUpdate.domainRegistrar = domainResult.registrar;
             }
 
             const domainAlert = getAlertInfo("domain", {

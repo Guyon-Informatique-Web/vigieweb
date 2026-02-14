@@ -67,7 +67,8 @@ model Site {
   sslIssuer       String?    @map("ssl_issuer")
 
   // Infos Domaine
-  domainExpiresAt DateTime?  @map("domain_expires_at")
+  domainExpiresAt  DateTime?  @map("domain_expires_at")
+  domainRegistrar  String?    @map("domain_registrar")
 
   // Statistiques calculees
   uptimePercentage Float?    @map("uptime_percentage")

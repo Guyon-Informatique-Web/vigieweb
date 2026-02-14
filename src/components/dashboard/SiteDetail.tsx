@@ -21,6 +21,9 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   ExternalLink,
   Trash2,
@@ -31,6 +34,7 @@ import {
   Globe,
   Bell,
   Activity,
+  Settings,
   Loader2,
 } from "lucide-react";
 import { UptimeChart } from "@/components/dashboard/UptimeChart";
@@ -55,6 +59,8 @@ export function SiteDetail({ site, checks, alerts }: SiteDetailProps) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const [toggling, setToggling] = useState(false);
+  const [siteName, setSiteName] = useState(site.name);
+  const [savingSettings, setSavingSettings] = useState(false);
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -205,6 +211,10 @@ export function SiteDetail({ site, checks, alerts }: SiteDetailProps) {
             <Bell className="mr-1 h-4 w-4" />
             Alertes
           </TabsTrigger>
+          <TabsTrigger value="settings">
+            <Settings className="mr-1 h-4 w-4" />
+            Parametres
+          </TabsTrigger>
         </TabsList>
 
         {/* Onglet Uptime */}
@@ -336,15 +346,23 @@ export function SiteDetail({ site, checks, alerts }: SiteDetailProps) {
               <CardTitle>Nom de domaine</CardTitle>
             </CardHeader>
             <CardContent>
-              <div>
-                <p className="text-sm text-muted-foreground">Expiration</p>
-                <p className="font-medium">
-                  {site.domainExpiresAt
-                    ? format(new Date(site.domainExpiresAt), "dd MMMM yyyy", {
-                        locale: fr,
-                      })
-                    : "Non verifie"}
-                </p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p className="text-sm text-muted-foreground">Expiration</p>
+                  <p className="font-medium">
+                    {site.domainExpiresAt
+                      ? format(new Date(site.domainExpiresAt), "dd MMMM yyyy", {
+                          locale: fr,
+                        })
+                      : "Non verifie"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Registrar</p>
+                  <p className="font-medium">
+                    {(site as Record<string, unknown>).domainRegistrar as string || "Non verifie"}
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -390,6 +408,111 @@ export function SiteDetail({ site, checks, alerts }: SiteDetailProps) {
                   ))}
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Onglet Parametres */}
+        <TabsContent value="settings" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Informations du site</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="site-name">Nom du site</Label>
+                <Input
+                  id="site-name"
+                  value={siteName}
+                  onChange={(e) => setSiteName(e.target.value)}
+                  placeholder="Mon site"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Monitoring actif</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Desactiver pour mettre le monitoring en pause
+                  </p>
+                </div>
+                <Switch
+                  checked={site.isActive}
+                  onCheckedChange={handleToggle}
+                  disabled={toggling}
+                />
+              </div>
+              <Button
+                disabled={savingSettings || siteName === site.name}
+                onClick={async () => {
+                  if (!siteName.trim()) {
+                    toast.error("Le nom est requis");
+                    return;
+                  }
+                  setSavingSettings(true);
+                  try {
+                    const response = await fetch(`/api/sites/${site.id}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ name: siteName.trim() }),
+                    });
+                    if (!response.ok) {
+                      toast.error("Erreur lors de la sauvegarde");
+                      return;
+                    }
+                    toast.success("Nom mis a jour");
+                    router.refresh();
+                  } catch {
+                    toast.error("Erreur de connexion");
+                  } finally {
+                    setSavingSettings(false);
+                  }
+                }}
+              >
+                {savingSettings && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Enregistrer
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-destructive/50">
+            <CardHeader>
+              <CardTitle className="text-destructive">Zone de danger</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4 text-sm text-muted-foreground">
+                La suppression d'un site est irreversible. Toutes les donnees
+                associees (historique, alertes) seront supprimees.
+              </p>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="destructive">
+                    <Trash2 className="mr-1 h-4 w-4" />
+                    Supprimer ce site
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Supprimer ce site ?</DialogTitle>
+                    <DialogDescription>
+                      Cette action supprimera toutes les donnees associees
+                      (historique, alertes). Cette action est irreversible.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => {}}>
+                      Annuler
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={handleDelete}
+                      disabled={deleting}
+                    >
+                      {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Supprimer
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </TabsContent>

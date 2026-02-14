@@ -4,6 +4,7 @@
 interface DomainResult {
   expiresAt: Date | null;
   daysRemaining: number | null;
+  registrar: string | null;
   errorMessage: string | null;
 }
 
@@ -34,6 +35,7 @@ export async function checkDomain(url: string): Promise<DomainResult> {
       return {
         expiresAt: null,
         daysRemaining: null,
+        registrar: null,
         errorMessage: `TLD .${tld} non supporte pour la verification de domaine`,
       };
     }
@@ -56,6 +58,7 @@ export async function checkDomain(url: string): Promise<DomainResult> {
       return {
         expiresAt: null,
         daysRemaining: null,
+        registrar: null,
         errorMessage: `RDAP erreur HTTP ${response.status}`,
       };
     }
@@ -68,10 +71,30 @@ export async function checkDomain(url: string): Promise<DomainResult> {
         event.eventAction === "expiration"
     );
 
+    // Extraire le registrar depuis les entites RDAP
+    let registrar: string | null = null;
+    if (data.entities) {
+      const registrarEntity = data.entities.find(
+        (entity: { roles?: string[] }) =>
+          entity.roles?.includes("registrar")
+      );
+      if (registrarEntity?.vcardArray?.[1]) {
+        const fnEntry = registrarEntity.vcardArray[1].find(
+          (entry: string[]) => entry[0] === "fn"
+        );
+        if (fnEntry) registrar = fnEntry[3];
+      }
+      // Fallback : nom dans handle ou ldhName
+      if (!registrar && registrarEntity?.handle) {
+        registrar = registrarEntity.handle;
+      }
+    }
+
     if (!expirationEvent?.eventDate) {
       return {
         expiresAt: null,
         daysRemaining: null,
+        registrar,
         errorMessage: "Date d'expiration non trouvee dans la reponse RDAP",
       };
     }
@@ -82,11 +105,12 @@ export async function checkDomain(url: string): Promise<DomainResult> {
       (expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
     );
 
-    return { expiresAt, daysRemaining, errorMessage: null };
+    return { expiresAt, daysRemaining, registrar, errorMessage: null };
   } catch (error) {
     return {
       expiresAt: null,
       daysRemaining: null,
+      registrar: null,
       errorMessage:
         error instanceof Error ? error.message : "Erreur inconnue",
     };
