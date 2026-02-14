@@ -1,18 +1,29 @@
 // API route pour creer une session Stripe Checkout
 // POST /api/stripe/checkout - Creer une session d'abonnement
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { getAuthUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { APP_CONFIG } from "@/config/app";
 import { z } from "zod";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const checkoutSchema = z.object({
   priceId: z.string().min(1, "ID du prix requis"),
 });
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Rate limit : 5 checkouts par minute par IP
+  const ip = getClientIp(request.headers);
+  const rl = rateLimit(`checkout:${ip}`, { maxRequests: 5, windowSeconds: 60 });
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: "Trop de requetes, reessayez dans quelques instants" },
+      { status: 429 }
+    );
+  }
+
   const { user, error } = await getAuthUser();
   if (error) return error;
 

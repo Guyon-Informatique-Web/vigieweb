@@ -1,10 +1,11 @@
 // API route pour tester le webhook Discord
 // POST /api/settings/notifications/test-discord
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/auth";
 import { sendDiscordAlert } from "@/lib/notifications/discord";
 import { z } from "zod";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const testSchema = z.object({
   webhookUrl: z
@@ -13,7 +14,17 @@ const testSchema = z.object({
     .startsWith("https://discord.com/api/webhooks/"),
 });
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Rate limit : 3 tests par minute par IP
+  const ip = getClientIp(request.headers);
+  const rl = rateLimit(`discord-test:${ip}`, { maxRequests: 3, windowSeconds: 60 });
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: "Trop de requetes, reessayez dans quelques instants" },
+      { status: 429 }
+    );
+  }
+
   const { error } = await getAuthUser();
   if (error) return error;
 

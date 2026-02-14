@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Shield, Menu } from "lucide-react";
 
 const navLinks = [
-  { href: "/#features", label: "Fonctionnalites" },
+  { href: "/features", label: "Fonctionnalites" },
   { href: "/pricing", label: "Tarifs" },
 ];
 

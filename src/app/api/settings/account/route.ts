@@ -2,11 +2,12 @@
 // PATCH /api/settings/account - Mettre a jour le profil
 // DELETE /api/settings/account - Supprimer le compte
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const updateSchema = z.object({
   name: z.string().min(1, "Le nom est requis").max(100).optional(),
@@ -37,7 +38,17 @@ export async function PATCH(request: Request) {
   });
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
+  // Rate limit : 3 suppressions par heure par IP
+  const ip = getClientIp(request.headers);
+  const rl = rateLimit(`account-delete:${ip}`, { maxRequests: 3, windowSeconds: 3600 });
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: "Trop de requetes, reessayez plus tard" },
+      { status: 429 }
+    );
+  }
+
   const { user, error } = await getAuthUser();
   if (error) return error;
 

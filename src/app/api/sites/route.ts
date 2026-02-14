@@ -2,12 +2,13 @@
 // GET /api/sites - Liste des sites de l'utilisateur
 // POST /api/sites - Ajouter un nouveau site
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser } from "@/lib/auth";
 import { createSiteSchema } from "@/lib/validations";
 import { PLANS } from "@/config/plans";
 import type { Plan } from "@/generated/prisma/client";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function GET() {
   const { user, error } = await getAuthUser();
@@ -21,7 +22,17 @@ export async function GET() {
   return NextResponse.json(sites);
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Rate limit : 10 creations par minute par IP
+  const ip = getClientIp(request.headers);
+  const rl = rateLimit(`sites:create:${ip}`, { maxRequests: 10, windowSeconds: 60 });
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: "Trop de requetes, reessayez dans quelques instants" },
+      { status: 429 }
+    );
+  }
+
   const { user, error } = await getAuthUser();
   if (error) return error;
 
