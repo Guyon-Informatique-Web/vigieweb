@@ -1,5 +1,5 @@
 // Cron job de monitoring
-// Appele par Vercel Cron toutes les minutes
+// Appele par Vercel Cron (quotidien sur Hobby, configurable sur Pro)
 // Verifie quels sites doivent etre checkes selon leur plan
 
 import { NextRequest, NextResponse } from "next/server";

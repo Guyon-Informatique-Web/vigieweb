@@ -176,19 +176,21 @@ npx prisma generate
 
 ### 7.3 Cron jobs
 
-Le fichier `vercel.json` configure un cron toutes les minutes :
+Le fichier `vercel.json` configure un cron quotidien (plan Hobby) :
 ```json
 {
   "crons": [
     {
       "path": "/api/cron/monitor",
-      "schedule": "* * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
 ```
 
-**Important** : Les crons avec intervalle < 1h necessitent le plan Vercel Pro.
+**Important** : Pour un monitoring plus frequent, passer au plan Vercel Pro :
+- `*/5 * * * *` : toutes les 5 minutes (Pro)
+- `* * * * *` : toutes les minutes (Pro)
 
 ---
 
