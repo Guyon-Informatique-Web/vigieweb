@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { prisma } from "@/lib/prisma";
 import { PLANS } from "@/config/plans";
+import { withErrorHandling } from "@/lib/api-error-handler";
 import type Stripe from "stripe";
 import type { Plan } from "@/generated/prisma/client";
 
@@ -25,7 +26,7 @@ function getPlanFromPriceId(priceId: string): Plan | null {
   return null;
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withErrorHandling(async function POST(request: NextRequest) {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
 
@@ -138,4 +139,4 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json({ received: true });
-}
+}, "WEBHOOK");

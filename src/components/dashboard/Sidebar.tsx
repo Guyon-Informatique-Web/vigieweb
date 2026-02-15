@@ -12,6 +12,7 @@ import { APP_CONFIG } from "@/config/app";
 import { Button } from "@/components/ui/button";
 import {
   Shield,
+  ShieldCheck,
   LayoutDashboard,
   Globe,
   Bell,
@@ -60,9 +61,10 @@ const bottomItems = [
 
 interface SidebarProps {
   user: User;
+  isAdmin?: boolean;
 }
 
-export function Sidebar({ user }: SidebarProps) {
+export function Sidebar({ user, isAdmin }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -137,6 +139,22 @@ export function Sidebar({ user }: SidebarProps) {
 
       {/* Navigation basse */}
       <div className="border-t p-2">
+        {isAdmin && (
+          <Link
+            href="/dashboard/admin"
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+              pathname.startsWith("/dashboard/admin")
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+              collapsed && "justify-center px-2"
+            )}
+            title={collapsed ? "Admin" : undefined}
+          >
+            <ShieldCheck className="h-5 w-5 shrink-0" />
+            {!collapsed && <span>Admin</span>}
+          </Link>
+        )}
         {bottomItems.map((item) => {
           const isActive = pathname === item.href;
 

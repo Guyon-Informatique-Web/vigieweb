@@ -3,6 +3,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { MobileNav } from "@/components/dashboard/MobileNav";
@@ -21,10 +22,16 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  // Recuperer isAdmin depuis Prisma
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { isAdmin: true },
+  });
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar desktop */}
-      <Sidebar user={user} />
+      <Sidebar user={user} isAdmin={dbUser?.isAdmin} />
 
       {/* Contenu principal */}
       <div className="flex flex-1 flex-col overflow-hidden">

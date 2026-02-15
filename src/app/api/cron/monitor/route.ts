@@ -10,6 +10,7 @@ import { checkSSL } from "@/lib/monitoring/ssl";
 import { checkDomain } from "@/lib/monitoring/domain";
 import { sendAlertEmail } from "@/lib/notifications/email";
 import { sendDiscordAlert } from "@/lib/notifications/discord";
+import { withErrorHandling } from "@/lib/api-error-handler";
 import type { Plan, AlertType, Severity, SiteStatus } from "@/generated/prisma/client";
 
 // Securiser le endpoint avec CRON_SECRET
@@ -222,7 +223,7 @@ async function createAlertAndNotify(
   return true;
 }
 
-export async function GET(request: NextRequest) {
+export const GET = withErrorHandling(async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Non autorise" }, { status: 401 });
   }
@@ -469,4 +470,4 @@ export async function GET(request: NextRequest) {
     alerts: alertCount,
     total: sitesToCheck.length,
   });
-}
+}, "MONITORING");
