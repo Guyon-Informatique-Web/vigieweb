@@ -51,7 +51,21 @@ export const updateSiteSchema = z.object({
     .max(100, "Le nom ne peut pas depasser 100 caracteres")
     .optional(),
   isActive: z.boolean().optional(),
+  badgeEnabled: z.boolean().optional(),
+});
+
+// Schema pour inscription newsletter
+export const subscriberSchema = z.object({
+  email: z
+    .string()
+    .email("Adresse email invalide")
+    .max(255, "L'email ne peut pas depasser 255 caracteres"),
+  source: z
+    .enum(["landing", "blog", "footer"])
+    .optional()
+    .default("landing"),
 });
 
 export type CreateSiteInput = z.infer<typeof createSiteSchema>;
 export type UpdateSiteInput = z.infer<typeof updateSiteSchema>;
+export type SubscriberInput = z.infer<typeof subscriberSchema>;

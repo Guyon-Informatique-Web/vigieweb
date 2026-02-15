@@ -1,5 +1,5 @@
 // Page Pricing - Comparatif detaille des plans
-// Toggle mensuel/annuel, badge 2 mois offerts, FAQ pricing
+// Toggle mensuel/annuel, badge 2 mois offerts, FAQ pricing, JSON-LD Product
 
 import type { Metadata } from "next";
 import { PricingCards } from "@/components/marketing/PricingCards";
@@ -9,6 +9,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { productJsonLd } from "@/lib/seo/json-ld";
 
 export const metadata: Metadata = {
   title: "Tarifs",
@@ -49,9 +50,58 @@ const pricingFaq = [
   },
 ];
 
+const plans = [
+  {
+    name: "Gratuit",
+    price: 0,
+    description:
+      "1 site surveille avec verification toutes les 30 minutes et alertes email.",
+    features: [
+      "1 site surveille",
+      "Verification toutes les 30 min",
+      "Alertes email",
+    ],
+  },
+  {
+    name: "Pro",
+    price: 9.99,
+    description:
+      "10 sites surveilles avec verification toutes les 5 minutes, alertes email et Discord, rapports PDF.",
+    features: [
+      "10 sites surveilles",
+      "Verification toutes les 5 min",
+      "Alertes email + Discord",
+      "Rapports PDF",
+    ],
+  },
+  {
+    name: "Agence",
+    price: 29.99,
+    description:
+      "50 sites surveilles avec verification toutes les minutes, rapports personnalises et support prioritaire.",
+    features: [
+      "50 sites surveilles",
+      "Verification toutes les minutes",
+      "Rapports personnalises",
+      "Support prioritaire",
+    ],
+  },
+];
+
 export default function PricingPage() {
   return (
     <div>
+      {/* JSON-LD Product pour chaque plan */}
+      {plans.map((plan) => (
+        <script
+          key={plan.name}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(productJsonLd(plan)),
+          }}
+        />
+      ))}
+
       {/* En-tete */}
       <section className="py-16 text-center">
         <div className="mx-auto max-w-4xl px-4">

@@ -1,24 +1,27 @@
 // Footer des pages publiques
-// Liens legaux, contact, copyright
+// Liens legaux, ressources, contact, newsletter compact
 
 import Link from "next/link";
 import { Shield } from "lucide-react";
+import { NewsletterForm } from "@/components/blog/NewsletterForm";
 
 export function Footer() {
   return (
     <footer className="border-t bg-muted/30">
       <div className="mx-auto max-w-6xl px-4 py-12">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           {/* Marque */}
-          <div>
+          <div className="lg:col-span-2">
             <div className="mb-3 flex items-center gap-2 font-bold">
               <Shield className="h-5 w-5 text-indigo-600" />
               Vigie Web
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="mb-4 text-sm text-muted-foreground">
               La sentinelle de vos sites internet. Monitoring simple et fiable
               pour freelances et agences web.
             </p>
+            <p className="mb-2 text-xs font-medium">Newsletter</p>
+            <NewsletterForm source="footer" />
           </div>
 
           {/* Produit */}
@@ -38,7 +41,27 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* Ressources */}
+          <div>
+            <h3 className="mb-3 text-sm font-semibold">Ressources</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>
+                <Link href="/blog" className="hover:text-foreground">
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/blog/surveiller-site-web"
+                  className="hover:text-foreground"
+                >
+                  Guides
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Legal + Contact */}
           <div>
             <h3 className="mb-3 text-sm font-semibold">Legal</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
@@ -62,13 +85,6 @@ export function Footer() {
                   Confidentialite
                 </Link>
               </li>
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h3 className="mb-3 text-sm font-semibold">Contact</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <a
                   href="mailto:support@vigieweb.fr"

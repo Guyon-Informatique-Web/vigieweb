@@ -1,5 +1,5 @@
 // Landing page Vigie Web
-// Hero, Comment ca marche, Fonctionnalites, Pricing, FAQ
+// Hero, Comment ca marche, Fonctionnalites, Pricing, FAQ, Newsletter
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,8 @@ import {
   Check,
 } from "lucide-react";
 import { PLANS } from "@/config/plans";
+import { NewsletterSection } from "@/components/shared/NewsletterSection";
+import { faqPageJsonLd } from "@/lib/seo/json-ld";
 
 // Fonctionnalites principales
 const features = [
@@ -122,6 +124,12 @@ const faq = [
 export default function HomePage() {
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqPageJsonLd(faq)),
+        }}
+      />
       {/* Hero */}
       <section className="relative overflow-hidden py-20 sm:py-32">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100 via-transparent to-transparent dark:from-indigo-950/30" />
@@ -281,6 +289,9 @@ export default function HomePage() {
           </Accordion>
         </div>
       </section>
+
+      {/* Newsletter */}
+      <NewsletterSection />
 
       {/* CTA final */}
       <section className="border-t bg-indigo-600 py-16 dark:bg-indigo-950">

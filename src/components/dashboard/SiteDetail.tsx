@@ -36,8 +36,10 @@ import {
   Activity,
   Settings,
   Loader2,
+  Award,
 } from "lucide-react";
 import { UptimeChart } from "@/components/dashboard/UptimeChart";
+import { BadgeTab } from "@/components/dashboard/BadgeTab";
 import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { SiteStatus } from "@/types/site";
@@ -210,6 +212,10 @@ export function SiteDetail({ site, checks, alerts }: SiteDetailProps) {
           <TabsTrigger value="alerts">
             <Bell className="mr-1 h-4 w-4" />
             Alertes
+          </TabsTrigger>
+          <TabsTrigger value="badge">
+            <Award className="mr-1 h-4 w-4" />
+            Badge
           </TabsTrigger>
           <TabsTrigger value="settings">
             <Settings className="mr-1 h-4 w-4" />
@@ -410,6 +416,15 @@ export function SiteDetail({ site, checks, alerts }: SiteDetailProps) {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Onglet Badge */}
+        <TabsContent value="badge">
+          <BadgeTab
+            siteId={site.id}
+            siteName={site.name}
+            badgeEnabled={(site as Record<string, unknown>).badgeEnabled as boolean ?? false}
+          />
         </TabsContent>
 
         {/* Onglet Parametres */}

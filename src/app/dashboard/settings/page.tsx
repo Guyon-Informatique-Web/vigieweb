@@ -1,9 +1,11 @@
 // Page des parametres du compte
-// Modifier le nom, changer le mot de passe, supprimer le compte
+// Modifier le nom, page de statut, etc.
 
 import { getAuthUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 import { AccountClient } from "@/components/dashboard/AccountClient";
+import { StatusPageSettings } from "@/components/dashboard/StatusPageSettings";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -13,6 +15,13 @@ export const metadata: Metadata = {
 export default async function SettingsPage() {
   const { user, error } = await getAuthUser();
   if (error) redirect("/login");
+
+  // Recuperer les sites de l'utilisateur pour la config status page
+  const sites = await prisma.site.findMany({
+    where: { userId: user!.id },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
 
   return (
     <div className="space-y-6">
@@ -26,6 +35,13 @@ export default async function SettingsPage() {
       <AccountClient
         name={user!.name || ""}
         email={user!.email}
+      />
+
+      <StatusPageSettings
+        enabled={user!.statusPageEnabled}
+        slug={user!.statusSlug || ""}
+        selectedSiteIds={user!.statusSiteIds}
+        sites={sites}
       />
     </div>
   );

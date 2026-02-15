@@ -12,6 +12,7 @@ import { Shield, Menu } from "lucide-react";
 const navLinks = [
   { href: "/features", label: "Fonctionnalites" },
   { href: "/pricing", label: "Tarifs" },
+  { href: "/blog", label: "Blog" },
 ];
 
 export function Header() {

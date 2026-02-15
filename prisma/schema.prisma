@@ -29,6 +29,11 @@ model User {
   notifyDiscord     Boolean   @default(false) @map("notify_discord")
   discordWebhookUrl String?   @map("discord_webhook_url")
 
+  // Page de statut publique
+  statusPageEnabled Boolean   @default(false) @map("status_page_enabled")
+  statusSlug        String?   @unique @map("status_slug")
+  statusSiteIds     String[]  @default([]) @map("status_site_ids")
+
   // Metadonnees
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
@@ -69,6 +74,9 @@ model Site {
   // Infos Domaine
   domainExpiresAt  DateTime?  @map("domain_expires_at")
   domainRegistrar  String?    @map("domain_registrar")
+
+  // Badge public
+  badgeEnabled    Boolean    @default(false) @map("badge_enabled")
 
   // Statistiques calculees
   uptimePercentage Float?    @map("uptime_percentage")
@@ -175,4 +183,16 @@ enum Severity {
   INFO
   WARNING
   CRITICAL
+}
+
+// ============================================
+// ABONNES NEWSLETTER
+// ============================================
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String   // "landing", "blog", "footer"
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("subscribers")
 }
