@@ -5,6 +5,9 @@ import { Resend } from "resend";
 import { APP_CONFIG } from "@/config/app";
 import { AlertEmail } from "@/components/emails/AlertEmail";
 
+if (!process.env.RESEND_API_KEY) {
+  throw new Error("La variable d'environnement RESEND_API_KEY est requise")
+}
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface AlertEmailData {

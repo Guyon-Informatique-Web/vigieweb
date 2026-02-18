@@ -5,9 +5,12 @@ import { Resend } from "resend";
 import { APP_CONFIG } from "@/config/app";
 import { ErrorAlertEmail } from "@/components/emails/ErrorAlertEmail";
 
+if (!process.env.RESEND_API_KEY) {
+  throw new Error("La variable d'environnement RESEND_API_KEY est requise")
+}
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "vguyon.dev@hotmail.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 
 interface ErrorEmailData {
   level: string;
@@ -22,6 +25,11 @@ interface ErrorEmailData {
 }
 
 export async function sendErrorAlertEmail(data: ErrorEmailData): Promise<boolean> {
+  if (!ADMIN_EMAIL) {
+    console.error("ADMIN_EMAIL non défini, envoi d'alerte ignoré")
+    return false
+  }
+
   try {
     const timestamp = new Date().toLocaleString("fr-FR", {
       timeZone: "Europe/Paris",
