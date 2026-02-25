@@ -73,4 +73,20 @@ export const PLANS = {
   },
 } as const;
 
+export const ADMIN_LIMITS = {
+  maxSites: 999999,
+  checkInterval: 1,
+  retentionDays: 365,
+  notifications: ["email", "discord"] as const,
+  reports: true,
+  customAlerts: true,
+} as const;
+
+export function getPlanLimits(plan: (typeof PLANS)[PlanType], isAdmin?: boolean) {
+  if (isAdmin) {
+    return ADMIN_LIMITS;
+  }
+  return plan.limits;
+}
+
 export type PlanType = keyof typeof PLANS;

@@ -24,7 +24,7 @@ export default async function ReportsPage() {
   const plan = PLANS[user!.plan as Plan];
 
   // Si le plan ne permet pas les rapports, afficher un message
-  if (!plan.limits.reports) {
+  if (!user!.isAdmin && !plan.limits.reports) {
     return (
       <div className="space-y-6">
         <h2 className="text-2xl font-bold">Rapports</h2>

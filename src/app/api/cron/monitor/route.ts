@@ -141,6 +141,7 @@ interface UserInfo {
   id: string;
   email: string;
   plan: string;
+  isAdmin: boolean;
   notifyEmail: boolean;
   notifyDiscord: boolean;
   discordWebhookUrl: string | null;
@@ -194,7 +195,7 @@ async function createAlertAndNotify(
 
   // Discord (uniquement si le plan le permet)
   const planConfig = PLANS[user.plan as Plan];
-  const discordAllowed = (planConfig.limits.notifications as readonly string[]).includes("discord");
+  const discordAllowed = user.isAdmin || (planConfig.limits.notifications as readonly string[]).includes("discord");
 
   if (user.notifyDiscord && user.discordWebhookUrl && discordAllowed) {
     notifications.push(
@@ -241,6 +242,7 @@ export const GET = withErrorHandling(async function GET(request: NextRequest) {
           id: true,
           email: true,
           plan: true,
+          isAdmin: true,
           notifyEmail: true,
           notifyDiscord: true,
           discordWebhookUrl: true,
@@ -254,7 +256,8 @@ export const GET = withErrorHandling(async function GET(request: NextRequest) {
     if (!site.lastCheckedAt) return true;
 
     const plan = PLANS[site.user.plan as Plan];
-    const intervalMs = plan.limits.checkInterval * 60 * 1000;
+    const checkInterval = site.user.isAdmin ? 1 : plan.limits.checkInterval;
+    const intervalMs = checkInterval * 60 * 1000;
     const elapsed = now.getTime() - new Date(site.lastCheckedAt).getTime();
 
     return elapsed >= intervalMs;

@@ -49,17 +49,20 @@ export async function POST(request: NextRequest) {
 
   // Verifier la limite de sites selon le plan
   const plan = PLANS[user!.plan as Plan];
-  const siteCount = await prisma.site.count({
-    where: { userId: user!.id },
-  });
 
-  if (siteCount >= plan.limits.maxSites) {
-    return NextResponse.json(
-      {
-        error: `Limite atteinte (${plan.limits.maxSites} site${plan.limits.maxSites > 1 ? "s" : ""} pour le plan ${plan.name})`,
-      },
-      { status: 403 }
-    );
+  if (!user!.isAdmin) {
+    const siteCount = await prisma.site.count({
+      where: { userId: user!.id },
+    });
+
+    if (siteCount >= plan.limits.maxSites) {
+      return NextResponse.json(
+        {
+          error: `Limite atteinte (${plan.limits.maxSites} site${plan.limits.maxSites > 1 ? "s" : ""} pour le plan ${plan.name})`,
+        },
+        { status: 403 }
+      );
+    }
   }
 
   // Creer le site

@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
   // Verifier que le plan permet les rapports
   const plan = PLANS[user!.plan as Plan];
-  if (!plan.limits.reports) {
+  if (!user!.isAdmin && !plan.limits.reports) {
     return NextResponse.json(
       { error: "Les rapports sont disponibles a partir du plan Pro" },
       { status: 403 }
