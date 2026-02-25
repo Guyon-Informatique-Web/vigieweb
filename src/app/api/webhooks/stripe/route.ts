@@ -81,6 +81,25 @@ export const POST = withErrorHandling(async function POST(request: NextRequest) 
               plan,
             },
           });
+
+          // Sync vers FactuPilot (non-bloquant)
+          const planConfig = PLANS[plan];
+          const isYearly = subscription.items.data[0]?.price.recurring?.interval === "year";
+          const amount = isYearly ? (planConfig as any).yearlyPrice || planConfig.price * 12 : planConfig.price;
+          const { syncPaymentToFactuPilot } = await import("@/lib/factupilot-sync");
+          syncPaymentToFactuPilot({
+            client: {
+              email: session.customer_email || session.customer_details?.email || "",
+              name: session.customer_details?.name || session.customer_email || "",
+            },
+            payment: {
+              amount,
+              description: `Abonnement VigieWeb ${planConfig.name} — ${isYearly ? "annuel" : "mensuel"}`,
+              stripePaymentId: session.id,
+              type: "subscription",
+              date: new Date().toISOString(),
+            },
+          }).catch((err: unknown) => console.error("Erreur sync FactuPilot (non-bloquant):", err));
         }
         break;
       }
