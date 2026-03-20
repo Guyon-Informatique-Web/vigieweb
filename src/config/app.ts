@@ -13,8 +13,9 @@ export const APP_CONFIG = {
   company: {
     name: "Guyon Informatique & Web",
     type: "Micro-entreprise",
-    address: "",
-    siret: "",
+    address: "34 rue Victor Hugo, 66430 BOMPAS, France",
+    siret: "89430689300047",
+    apeCode: "6201Z",
   },
   social: {
     twitter: "",

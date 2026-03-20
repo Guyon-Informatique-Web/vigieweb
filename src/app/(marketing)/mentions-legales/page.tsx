@@ -19,9 +19,11 @@ export default function MentionsLegalesPage() {
           <br />
           Micro-entreprise
           <br />
-          SIRET : [A completer]
+          SIRET : 89430689300047
           <br />
-          Adresse : [A completer]
+          Code APE : 6201Z
+          <br />
+          Adresse : 34 rue Victor Hugo, 66430 BOMPAS, France
           <br />
           Email : support@vigieweb.fr
         </p>
