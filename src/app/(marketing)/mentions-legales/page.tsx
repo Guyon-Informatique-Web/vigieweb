@@ -19,7 +19,7 @@ export default function MentionsLegalesPage() {
           <br />
           Micro-entreprise
           <br />
-          SIRET : 89430689300047
+          SIRET : 89430689300054
           <br />
           Code APE : 6201Z
           <br />

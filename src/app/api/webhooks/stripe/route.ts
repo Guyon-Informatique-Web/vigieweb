@@ -145,6 +145,40 @@ export const POST = withErrorHandling(async function POST(request: NextRequest) 
         }
         break;
       }
+
+      // Facture Stripe payee (renouvellement abonnement)
+      case "invoice.paid": {
+        const stripeInvoice = event.data.object as Stripe.Invoice;
+        const subDetails = stripeInvoice.parent?.subscription_details;
+        const subscriptionId = (subDetails?.subscription as string) || null;
+
+        if (subscriptionId) {
+          const user = await prisma.user.findFirst({
+            where: { stripeSubscriptionId: subscriptionId },
+          });
+
+          if (user) {
+            const planConfig = PLANS[user.plan as keyof typeof PLANS];
+            const amount = (stripeInvoice.amount_paid || 0) / 100;
+
+            // Sync vers FactuPilot (non-bloquant)
+            if (amount > 0) {
+              const { syncPaymentToFactuPilot } = await import("@/lib/factupilot-sync");
+              syncPaymentToFactuPilot({
+                client: { email: user.email, name: user.name || user.email },
+                payment: {
+                  amount,
+                  description: `Abonnement VigieWeb ${planConfig.name} — renouvellement`,
+                  stripePaymentId: stripeInvoice.id,
+                  type: "subscription",
+                  date: new Date().toISOString(),
+                },
+              }).catch((err: unknown) => console.error("Erreur sync FactuPilot (non-bloquant):", err));
+            }
+          }
+        }
+        break;
+      }
     }
   } catch (error) {
     console.error(
